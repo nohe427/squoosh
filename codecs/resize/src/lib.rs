@@ -56,6 +56,12 @@ fn alpha_multiplier_funcs(
     }
 }
 
+macro_rules! console_log {
+    // Note that this is using the `log` function imported above during
+    // `bare_bones`
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+}
+
 #[wasm_bindgen]
 #[no_mangle]
 pub fn resize(
@@ -75,13 +81,16 @@ pub fn resize(
         3 => Type::Lanczos3,
         _ => panic!("Nope"),
     };
+    web_sys::console::log_1(&"Hello using web-sys".into());
     let num_input_pixels = input_width * input_height;
     let num_output_pixels = output_width * output_height;
+    web_sys::console::log_1(&"vec".into());
 
     let mut output_image = vec![0u8; num_output_pixels * 4];
 
     // If both options are false, there is no preprocessing on the pixel values
     // and we can skip the loop.
+    web_sys::console::log_1(&"premultiple".into());
     if !premultiply && !color_space_conversion {
         let mut resizer = resize::new(
             input_width,
@@ -97,11 +106,20 @@ pub fn resize(
 
     // Otherwise, we convert to f32 images to keep the
     // conversions as lossless and high-fidelity as possible.
+    web_sys::console::log_1(&"converter".into());
     let (to_linear, to_srgb) = srgb_converter_funcs(color_space_conversion);
+    web_sys::console::log_1(&"alpha".into());
     let (premultiplier, demultiplier) = alpha_multiplier_funcs(premultiply);
+    web_sys::console::log_1(&"postalpha".into());
 
+    web_sys::console::log_1(&"pre input_iamge".into());
+    let s: String = input_image.len().to_string();
+    web_sys::console::log_1(&s.into());
     let mut preprocessed_input_image: Vec<f32> = Vec::with_capacity(input_image.len());
+    web_sys::console::log_1(&"post input_image".into());
     preprocessed_input_image.resize(input_image.len(), 0.0f32);
+    web_sys::console::log_1(&"post resize".into());
+    web_sys::console::log_1(&"forloop1".into());
     for i in 0..num_input_pixels {
         for j in 0..3 {
             preprocessed_input_image[4 * i + j] = premultiplier(
@@ -112,8 +130,10 @@ pub fn resize(
         preprocessed_input_image[4 * i + 3] = (input_image[4 * i + 3] as f32) / 255.0;
     }
 
+    web_sys::console::log_1(&"unprocout".into());
     let mut unprocessed_output_image = vec![0.0f32; num_output_pixels * 4];
 
+    web_sys::console::log_1(&"resizer".into());
     let mut resizer = resize::new(
         input_width,
         input_height,
@@ -122,11 +142,13 @@ pub fn resize(
         Pixel::RGBAF32,
         typ,
     );
+    web_sys::console::log_1(&"resize".into());
     resizer.resize(
         preprocessed_input_image.as_slice(),
         unprocessed_output_image.as_mut_slice(),
     );
 
+    web_sys::console::log_1(&"forloop2".into());
     for i in 0..num_output_pixels {
         for j in 0..3 {
             output_image[4 * i + j] = to_srgb(demultiplier(
@@ -138,6 +160,7 @@ pub fn resize(
             .round()
             .clamp(0.0, 255.0) as u8;
     }
+    web_sys::console::log_1(&"Clamped".into());
 
     return Clamped(output_image);
 }

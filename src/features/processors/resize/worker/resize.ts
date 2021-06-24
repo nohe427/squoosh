@@ -103,7 +103,12 @@ export default async function resize(
     opts = { ...opts, method: 'catrom' };
   }
 
+  console.log(JSON.stringify(opts));
+  console.log(new Uint8Array(input.data.buffer));
+
   await resizeWasmReady;
+
+  console.log('wasm ready pass');
 
   if (opts.fitMethod === 'contain') {
     const { sx, sy, sw, sh } = getContainOffsets(
@@ -121,6 +126,8 @@ export default async function resize(
     );
   }
 
+  console.log('pass fit method');
+
   const result = wasmResize(
     new Uint8Array(input.data.buffer),
     input.width,
@@ -131,6 +138,8 @@ export default async function resize(
     opts.premultiply,
     opts.linearRGB,
   );
+
+  console.log('Resize Done');
 
   return new ImageData(
     new Uint8ClampedArray(result.buffer),
