@@ -1,6 +1,5 @@
 {
   "name": "resize",
-  "type":"module",
   "scripts": {
     "build": "../build-rust.sh",
     "benchmark": "echo Before optimizing && npm run benchmark:baseline && echo AFter optimizing && npm run -s benchmark:optimizing",
