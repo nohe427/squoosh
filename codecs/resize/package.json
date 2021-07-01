@@ -1,6 +1,13 @@
 {
   "name": "resize",
+  "type":"module",
   "scripts": {
-    "build": "../build-rust.sh"
+    "build": "../build-rust.sh",
+    "benchmark": "echo Before optimizing && npm run benchmark:baseline && echo AFter optimizing && npm run -s benchmark:optimizing",
+    "benchmark:baseline": "v8 --liftoff --no-wasm-tier-up --no-opt ./debug.js",
+    "benchmark:optimizing": "v8 --no-liftoff --no-wasm-tier-up ./debug.js"
+  },
+  "dependencies": {
+    "canvas": "^2.8.0"
   }
 }
